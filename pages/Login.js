@@ -4,7 +4,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  BackHandler
+  BackHandler,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import InputField from '../components/InputField';
@@ -13,10 +13,9 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {useToast} from 'react-native-toast-notifications';
 import storage from '../storage/storage';
+import {storeData, getData} from '../localstorage/LocalStorage';
 
 const Login = ({navigation}) => {
-
-
   const toast = useToast();
 
   const [data, setData] = useState({
@@ -39,8 +38,6 @@ const Login = ({navigation}) => {
     };
   }, []);
 
-  //User Formik for Validation
-
   const loginValidation = Yup.object({
     email: Yup.string()
       .email('Email is not Valid')
@@ -51,36 +48,27 @@ const Login = ({navigation}) => {
   });
 
   const handleSubmit = loginData => {
-    let show=0;
-    //It Check the data form the json file 
-    //Only firstfirst@gmail.com can login
-    //password 123456789
-      console.log(UserData)
-    if (UserData.users) {
-      for (let i = 0; i < UserData.users.length; i++) {
-        show=0;
+    getData()
+      .then(data => {
         if (
-          UserData.users[i].email === loginData.email.toLowerCase() &&
-          UserData.users[i].password === loginData.password.toLowerCase()
+          data &&
+          data.email.toLowerCase() === loginData.email.toLowerCase() &&
+          data.password.toLowerCase() === loginData.password.toLowerCase()
         ) {
           navigation.navigate('Dashboard');
-        storage.set('loginInfo', JSON.stringify(true));
-        
-        }else{
-
+        } else {
           toast.show('Wrong Crediental.', {
-              duration: 2000,
-              type: 'danger',
-            });
-          }
-      }
-    } else {
-      toast.show('No Info Found.', {
-        duration: 2000,
-        type: 'danger',
+            duration: 2000,
+            type: 'danger',
+          });
+        }
+      })
+      .catch(error => {
+        toast.show('No Info Found.', {
+          duration: 2000,
+          type: 'danger',
+        });
       });
-    }
-    
   };
 
   return (
@@ -91,7 +79,6 @@ const Login = ({navigation}) => {
       {({handleChange, handleBlur, handleSubmit, values, errors, touched}) => (
         <View style={styles.container}>
           <View>
-            {/* input File Component  */}
             <InputField
               label="Email"
               name="email"
@@ -103,7 +90,6 @@ const Login = ({navigation}) => {
               touched={touched.email}
             />
           </View>
-         {/* input File Component  */}
           <View>
             <InputField
               label="Password"

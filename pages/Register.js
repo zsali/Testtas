@@ -6,7 +6,7 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import RNFS from 'react-native-fs';
 import {useToast} from 'react-native-toast-notifications';
-
+import {storeData, getData} from '../localstorage/LocalStorage';
 
 const Register = ({navigation}) => {
   const userData = [];
@@ -28,27 +28,22 @@ const Register = ({navigation}) => {
   });
 
   const handleSubmit = async registerData => {
-    try {
-      const path = RNFS.DocumentDirectoryPath + '/User.json';
-      // const data = await RNFS.readFile(path, 'utf8');
-      // const jsonData = JSON.parse(data);
-      // const newUser = {
-      //   registerData
-      // };
-      // jsonData.users.push(newUser);
-      await RNFS.writeFile(path, JSON.stringify(registerData), 'utf8');
-      toast.show('User registered successfully', {
-        duration: 2000,
-        type: 'success',
-      });
-      console.log('User registered successfully');
-      setTimeout(() => {
-        
-        navigation.navigate("Login")
-      }, 1000);
-    } catch (error) {
-      console.error(error);
-    }
+    const data = {
+      username: registerData.name,
+      email: registerData.email,
+      password: registerData.password,
+    };
+    storeData(data)
+      .then(() => {
+        toast.show('Register Successfully.', {
+          duration: 500,
+          type: 'success',
+        });
+        setTimeout(() => {
+          navigation.navigate('Login');
+        }, 1000);
+      })
+      .catch(error => console.error(error));
   };
 
   return (
