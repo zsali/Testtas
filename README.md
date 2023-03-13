@@ -1,8 +1,6 @@
 1) Login Page 
 
 Check the info from the JSON File 
-only email : First@gmail.com , Password : 123456789
-can access 
 
 Handle The Validatio By Formik and Yup
 
